@@ -1,13 +1,19 @@
 import React from "react";
+import { useNavigate } from "react-router-dom";
 
 const Home = () => {
+  const navigate = useNavigate();
+
   return (
     <div className="min-h-screen bg-gray-100">
       {/* Hero Section */}
       <section className="text-center py-16 bg-blue-600 text-white">
         <h1 className="text-4xl font-bold mb-4">Welcome to ServiceHub</h1>
         <p className="text-lg mb-6">Your go-to platform for finding and offering services.</p>
-        <button className="bg-white text-blue-600 px-6 py-3 rounded-lg font-semibold hover:bg-gray-200 transition">
+        <button 
+          className="bg-white text-blue-600 px-6 py-3 rounded-lg font-semibold hover:bg-gray-200 transition"
+          onClick={() => navigate("/signup")}
+        >
           Get Started
         </button>
       </section>
@@ -73,7 +79,10 @@ const Home = () => {
       <section className="bg-blue-600 text-white text-center py-12">
         <h2 className="text-3xl font-bold mb-4">Join ServiceHub Today</h2>
         <p className="text-lg mb-6">Start hiring or offering services effortlessly.</p>
-        <button className="bg-white text-blue-600 px-6 py-3 rounded-lg font-semibold hover:bg-gray-200 transition">
+        <button 
+          className="bg-white text-blue-600 px-6 py-3 rounded-lg font-semibold hover:bg-gray-200 transition"
+          onClick={() => navigate("/signup")}
+        >
           Sign Up Now
         </button>
       </section>
