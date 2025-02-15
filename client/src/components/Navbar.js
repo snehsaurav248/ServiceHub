@@ -1,9 +1,11 @@
-import React, { useState } from "react";
+import React, { useState, useContext } from "react";
 import { Link } from "react-router-dom";
 import { Menu, X, ShoppingCart, User, Search } from "lucide-react";
+import { AuthContext } from "../context/AuthContext";
 
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
+  const { user, logout } = useContext(AuthContext);
 
   return (
     <nav className="bg-gradient-to-r from-blue-500 to-purple-500 shadow-lg fixed w-full z-50">
@@ -31,15 +33,35 @@ const Navbar = () => {
           <Link to="/cart" className="relative">
             <ShoppingCart size={24} className="text-white hover:text-yellow-300 transition" />
           </Link>
-          <Link to="/profile">
-            <User size={24} className="text-white hover:text-yellow-300 transition" />
-          </Link>
-          <Link to="/login" className="px-5 py-2 bg-yellow-300 text-blue-800 font-semibold rounded-full text-lg hover:bg-yellow-400 transition">
-            Login
-          </Link>
-          <Link to="/signup" className="px-5 py-2 bg-green-400 text-white font-semibold rounded-full text-lg hover:bg-green-500 transition">
-            Signup
-          </Link>
+          
+          {/* Show Profile & Admin Link if Logged In */}
+          {user ? (
+            <>
+              <Link to="/profile">
+                <User size={24} className="text-white hover:text-yellow-300 transition" />
+              </Link>
+              {user.role === "admin" && (
+                <Link to="/admin/dashboard" className="text-white hover:text-yellow-300 text-lg transition">
+                  Admin
+                </Link>
+              )}
+              <button
+                onClick={logout}
+                className="px-5 py-2 bg-red-500 text-white font-semibold rounded-full text-lg hover:bg-red-600 transition"
+              >
+                Logout
+              </button>
+            </>
+          ) : (
+            <>
+              <Link to="/login" className="px-5 py-2 bg-yellow-300 text-blue-800 font-semibold rounded-full text-lg hover:bg-yellow-400 transition">
+                Login
+              </Link>
+              <Link to="/signup" className="px-5 py-2 bg-green-400 text-white font-semibold rounded-full text-lg hover:bg-green-500 transition">
+                Signup
+              </Link>
+            </>
+          )}
         </div>
 
         {/* Mobile Menu Button */}
@@ -54,17 +76,40 @@ const Navbar = () => {
           <li><Link to="/" className="text-lg hover:text-blue-600" onClick={() => setIsOpen(false)}>Home</Link></li>
           <li><Link to="/services" className="text-lg hover:text-blue-600" onClick={() => setIsOpen(false)}>Services</Link></li>
           <li><Link to="/cart" className="text-lg hover:text-blue-600" onClick={() => setIsOpen(false)}>Cart</Link></li>
-          <li><Link to="/profile" className="text-lg hover:text-blue-600" onClick={() => setIsOpen(false)}>Profile</Link></li>
-          <li>
-            <Link to="/login" className="px-5 py-2 bg-blue-500 text-white rounded-md text-lg hover:bg-blue-600 transition">
-              Login
-            </Link>
-          </li>
-          <li>
-            <Link to="/Signup" className="px-5 py-2 bg-green-400 text-white rounded-md text-lg hover:bg-green-500 transition">
-              Signup
-            </Link>
-          </li>
+          
+          {/* Show Profile & Admin Link if Logged In */}
+          {user ? (
+            <>
+              <li><Link to="/profile" className="text-lg hover:text-blue-600" onClick={() => setIsOpen(false)}>Profile</Link></li>
+              {user.role === "admin" && (
+                <li><Link to="/admin/dashboard" className="text-lg hover:text-blue-600" onClick={() => setIsOpen(false)}>Admin</Link></li>
+              )}
+              <li>
+                <button
+                  onClick={() => {
+                    logout();
+                    setIsOpen(false);
+                  }}
+                  className="px-5 py-2 bg-red-500 text-white rounded-md text-lg hover:bg-red-600 transition"
+                >
+                  Logout
+                </button>
+              </li>
+            </>
+          ) : (
+            <>
+              <li>
+                <Link to="/login" className="px-5 py-2 bg-blue-500 text-white rounded-md text-lg hover:bg-blue-600 transition" onClick={() => setIsOpen(false)}>
+                  Login
+                </Link>
+              </li>
+              <li>
+                <Link to="/signup" className="px-5 py-2 bg-green-400 text-white rounded-md text-lg hover:bg-green-500 transition" onClick={() => setIsOpen(false)}>
+                  Signup
+                </Link>
+              </li>
+            </>
+          )}
         </ul>
       )}
     </nav>

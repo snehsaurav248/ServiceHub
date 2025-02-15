@@ -1,14 +1,15 @@
 import React, { useContext } from "react";
 import { Link } from "react-router-dom";
-import { ArrowLeft, Settings } from "lucide-react";
-import { UserContext } from "../context/UserContext";
+import { ArrowLeft, Settings, Shield } from "lucide-react";
+import { AuthContext } from "../context/AuthContext";  
 
 const Profile = () => {
-  const { user } = useContext(UserContext);
+  const { user, logout } = useContext(AuthContext);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center p-6">
       <div className="bg-white shadow-xl rounded-lg p-8 max-w-3xl w-full">
+        
         {/* Back Button */}
         <Link to="/" className="flex items-center text-blue-600 hover:text-blue-800 mb-4">
           <ArrowLeft size={20} className="mr-2" />
@@ -25,6 +26,9 @@ const Profile = () => {
           <div>
             <h2 className="text-2xl font-semibold">{user?.name || "User Name"}</h2>
             <p className="text-gray-500">{user?.email || "user@example.com"}</p>
+            <span className={`text-sm font-semibold px-3 py-1 rounded-md ${user?.role === "admin" ? "bg-red-500 text-white" : "bg-green-500 text-white"}`}>
+              {user?.role === "admin" ? "Admin Mode" : "User Mode"}
+            </span>
           </div>
         </div>
 
@@ -40,13 +44,29 @@ const Profile = () => {
           </div>
         </div>
 
-        {/* Order History */}
-        <div className="mt-8">
-          <h3 className="text-xl font-semibold">Order History</h3>
-          <div className="mt-4 bg-gray-100 p-4 rounded-lg shadow-md">
-            <p className="text-gray-700">No orders yet.</p>
+        {/* Order History (User Mode) */}
+        {user?.role === "user" && (
+          <div className="mt-8">
+            <h3 className="text-xl font-semibold">Order History</h3>
+            <div className="mt-4 bg-gray-100 p-4 rounded-lg shadow-md">
+              <p className="text-gray-700">No orders yet.</p>
+            </div>
           </div>
-        </div>
+        )}
+
+        {/* Admin Panel (Admin Mode) */}
+        {user?.role === "admin" && (
+          <div className="mt-8">
+            <h3 className="text-xl font-semibold">Admin Dashboard</h3>
+            <p className="text-gray-700">Manage users, orders, and settings.</p>
+            <Link
+              to="/admin/dashboard"
+              className="mt-4 inline-block bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600 transition"
+            >
+              Go to Admin Panel
+            </Link>
+          </div>
+        )}
 
         {/* Settings & Logout */}
         <div className="mt-8 flex justify-between">
@@ -57,7 +77,7 @@ const Profile = () => {
             <Settings size={18} className="mr-2" />
             Settings
           </Link>
-          <button className="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg">
+          <button onClick={logout} className="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg">
             Logout
           </button>
         </div>

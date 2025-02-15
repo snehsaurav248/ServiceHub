@@ -11,7 +11,7 @@ const Contact = () => {
           href="mailto:snehsaurav248@gmail.com" 
           className="flex items-center gap-3 px-4 py-2 rounded-lg text-white bg-red-500 hover:bg-red-600 transition"
         >
-          <Mail size={24} /> <span className="text-lg">snehsaurav248@gmail.com</span>
+          <Mail size={24} /> <span className="text-lg">snehsauravv248@gmail.com</span>
         </a>
 
         <a 
