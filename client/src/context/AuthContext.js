@@ -29,7 +29,8 @@ const AuthProvider = ({ children }) => {
       console.log("Login Response:", response.data); // Debugging API response
 
       if (response.data && response.data.token) {
-        setUser(response.data);
+        setUser(response.data.user); // Store user data separately
+        localStorage.setItem("token", response.data.token); // Store JWT
       } else {
         console.error("Invalid login response structure");
       }
@@ -41,6 +42,7 @@ const AuthProvider = ({ children }) => {
   const logout = () => {
     setUser(null);
     localStorage.removeItem("user");
+    localStorage.removeItem("token");
   };
 
   return (

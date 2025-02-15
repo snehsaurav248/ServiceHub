@@ -1,10 +1,41 @@
-import React, { useContext } from "react";
-import { Link } from "react-router-dom";
-import { ArrowLeft, Settings, Shield } from "lucide-react";
-import { AuthContext } from "../context/AuthContext";  
+import React, { useContext, useEffect, useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import { ArrowLeft, Settings } from "lucide-react";
+import { AuthContext } from "../context/AuthContext";
+import axios from "axios";
 
 const Profile = () => {
-  const { user, logout } = useContext(AuthContext);
+  const { user, setUser, logout } = useContext(AuthContext);
+  const [loading, setLoading] = useState(true);
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    const fetchProfile = async () => {
+      const token = localStorage.getItem("token");
+      if (!token) {
+        navigate("/login");
+        return;
+      }
+
+      try {
+        const response = await axios.get("http://localhost:5000/api/profile", {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        setUser(response.data);
+      } catch (error) {
+        console.error("Error fetching profile:", error);
+        logout(); // Clear session if error
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchProfile();
+  }, [navigate, setUser, logout]);
+
+  if (loading) {
+    return <p className="text-center mt-10 text-lg">Loading...</p>;
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center p-6">
