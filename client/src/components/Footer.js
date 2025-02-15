@@ -1,8 +1,19 @@
-import React from "react";
+import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import { Facebook, Twitter, Instagram, Linkedin } from "lucide-react";
 
 const Footer = () => {
+  const [email, setEmail] = useState("");
+  const [isSubscribed, setIsSubscribed] = useState(false);
+
+  const handleSubscribe = () => {
+    if (email.trim() !== "") {
+      setIsSubscribed(true);
+      setTimeout(() => setIsSubscribed(false), 3000); // Hide message after 3 sec
+      setEmail(""); // Clear input field
+    }
+  };
+
   return (
     <footer className="bg-gray-900 text-gray-300 py-8 mt-12">
       <div className="container mx-auto px-4 grid grid-cols-1 md:grid-cols-3 gap-8">
@@ -19,7 +30,7 @@ const Footer = () => {
           <ul className="mt-2 space-y-2">
             <li><Link to="/" className="hover:text-gray-400">Home</Link></li>
             <li><Link to="/services" className="hover:text-gray-400">Services</Link></li>
-            <li><Link to="/about" className="hover:text-gray-400">About Us</Link></li>
+            <li><Link to="/about" className="hover:text-gray-400">About Me</Link></li>
             <li><Link to="/contact" className="hover:text-gray-400">Contact</Link></li>
           </ul>
         </div>
@@ -30,18 +41,26 @@ const Footer = () => {
           <input
             type="email"
             placeholder="Enter your email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
             className="mt-2 p-2 w-full rounded bg-gray-800 text-gray-300 border border-gray-600 focus:outline-none focus:ring-2 focus:ring-gray-500"
           />
-          <button className="mt-2 w-full bg-blue-500 text-white py-2 rounded hover:bg-blue-600">
+          <button
+            onClick={handleSubscribe}
+            className="mt-2 w-full bg-blue-500 text-white py-2 rounded hover:bg-blue-600"
+          >
             Subscribe
           </button>
+          {isSubscribed && (
+            <p className="text-green-400 text-sm mt-2">🎉 You are subscribed!</p>
+          )}
         </div>
 
       </div>
 
       {/* Social Media Links */}
       <div className="mt-6 text-center">
-        <h3 className="text-lg font-semibold text-white">Follow Us</h3>
+        <h3 className="text-lg font-semibold text-white">Follow Me</h3>
         <div className="flex justify-center gap-4 mt-2">
           <a href="https://facebook.com" target="_blank" rel="noopener noreferrer" className="hover:text-blue-400">
             <Facebook />
@@ -52,7 +71,7 @@ const Footer = () => {
           <a href="https://instagram.com" target="_blank" rel="noopener noreferrer" className="hover:text-pink-400">
             <Instagram />
           </a>
-          <a href="https://linkedin.com" target="_blank" rel="noopener noreferrer" className="hover:text-blue-600">
+          <a href="https://linkedin.com/in/snehsaurav248" target="_blank" rel="noopener noreferrer" className="hover:text-blue-600">
             <Linkedin />
           </a>
         </div>
