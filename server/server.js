@@ -7,21 +7,18 @@ const jwt = require("jsonwebtoken");
 
 const app = express();
 app.use(express.json());
-
-// ✅ Fixed CORS issue
 app.use(cors({ origin: "http://localhost:3000", credentials: true }));
 
-// ✅ MongoDB Connection Fix
-mongoose
-  .connect(process.env.MONGO_URI)
+mongoose.connect(process.env.MONGO_URI)
+
   .then(() => console.log("✅ MongoDB Connected"))
   .catch((err) => {
     console.error("❌ MongoDB Connection Error:", err);
     process.exit(1);
   });
 
-// ✅ User Model
-const User = mongoose.model("User", new mongoose.Schema({
+// User Model
+const UserSchema = new mongoose.Schema({
   name: { type: String, required: true },
   email: { type: String, unique: true, required: true },
   password: { type: String, required: true },
@@ -29,9 +26,11 @@ const User = mongoose.model("User", new mongoose.Schema({
   address: { type: String, required: true },
   profilePic: String,
   role: { type: String, default: "user", enum: ["user", "admin"] }
-}));
+});
 
-// ✅ Signup Route (Fixed)
+const User = mongoose.model("User", UserSchema);
+
+// ✅ Signup Route
 app.post("/signup", async (req, res) => {
   try {
     const { name, email, password, phone, address, role = "user" } = req.body;
@@ -46,7 +45,9 @@ app.post("/signup", async (req, res) => {
     const user = new User({ name, email, password: hashedPassword, phone, address, role });
     await user.save();
 
-    res.status(201).json({ message: "✅ User registered successfully" });
+    const token = jwt.sign({ id: user._id, role: user.role }, process.env.JWT_SECRET, { expiresIn: "1h" });
+
+    res.status(201).json({ message: "✅ User registered successfully", token, user });
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: "❌ Internal Server Error" });
@@ -74,20 +75,28 @@ app.post("/signin", async (req, res) => {
   }
 });
 
-// ✅ Fetch User Profile
-app.get("/profile", async (req, res) => {
+// ✅ Middleware to protect routes
+const authenticate = (req, res, next) => {
+  const token = req.headers.authorization;
+  if (!token) return res.status(401).json({ error: "❌ Unauthorized" });
+
   try {
-    const token = req.headers["authorization"];
-    if (!token) return res.status(401).json({ error: "❌ Unauthorized" });
-
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    const user = await User.findById(decoded.id).select("-password"); // Exclude password
+    req.user = decoded;
+    next();
+  } catch (err) {
+    return res.status(400).json({ error: "❌ Invalid token" });
+  }
+};
 
+// ✅ Fetch User Profile
+app.get("/profile", authenticate, async (req, res) => {
+  try {
+    const user = await User.findById(req.user.id).select("-password");
     if (!user) return res.status(404).json({ error: "User not found" });
-
     res.json(user);
   } catch (err) {
-    res.status(400).json({ error: "❌ Invalid token" });
+    res.status(500).json({ error: "❌ Server error" });
   }
 });
 
