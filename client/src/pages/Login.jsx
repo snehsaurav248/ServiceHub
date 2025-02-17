@@ -22,8 +22,20 @@ const Login = () => {
     setError("");
     setLoading(true);
 
+    // ✅ Basic validation before sending request
+    if (!formData.email || !formData.password) {
+      setError("❌ Email and password are required!");
+      setLoading(false);
+      return;
+    }
+    if (formData.password.length < 8) {
+      setError("❌ Password must be at least 8 characters!");
+      setLoading(false);
+      return;
+    }
+
     try {
-      const response = await axios.post("http://localhost:5000/api/login", formData);
+      const response = await axios.post("http://localhost:5000/api/signin", formData); // ✅ Corrected API route
 
       if (response.data.token) {
         const storage = rememberMe ? localStorage : sessionStorage;
@@ -32,10 +44,10 @@ const Login = () => {
 
         navigate("/profile");
       } else {
-        setError("Login failed! Please try again.");
+        setError("❌ Login failed! Please try again.");
       }
     } catch (err) {
-      setError(err.response?.data?.message || "Invalid credentials!");
+      setError(err.response?.data?.error || "❌ Invalid credentials!");
     } finally {
       setLoading(false);
     }

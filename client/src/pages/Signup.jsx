@@ -9,6 +9,7 @@ const Signup = () => {
     password: "",
     phone: "",
     address: "",
+    role: "user", // Default role
   });
 
   const [error, setError] = useState("");
@@ -27,15 +28,11 @@ const Signup = () => {
     setLoading(true);
 
     try {
-      const response = await axios.post("http://localhost:5000/signup", {
-        ...formData,
-        role: "user",
-      });
-
-      setSuccess(response.data.message);
+      await axios.post("http://localhost:5000/auth/signup", formData); // Removed response assignment
+      setSuccess("Signup successful! Redirecting...");
       setTimeout(() => navigate("/login"), 2000);
     } catch (err) {
-      setError(err.response?.data?.message || "Signup failed. Please try again.");
+      setError(err.response?.data?.error || "Signup failed. Please try again.");
     } finally {
       setLoading(false);
     }
@@ -62,6 +59,17 @@ const Signup = () => {
               className="w-full p-2 border rounded"
             />
           ))}
+          
+          {/* Role Selection */}
+          <select
+            name="role"
+            value={formData.role}
+            onChange={handleChange}
+            className="w-full p-2 border rounded"
+          >
+            <option value="user">User</option>
+            <option value="admin">Admin</option>
+          </select>
 
           <button
             type="submit"
@@ -75,7 +83,7 @@ const Signup = () => {
         </form>
 
         <p className="text-sm text-center mt-4">
-          Already have an account?{" "}
+          Already have an account? {" "}
           <Link to="/login" className="text-blue-500">
             Login
           </Link>
