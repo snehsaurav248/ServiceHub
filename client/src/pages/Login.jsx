@@ -10,7 +10,7 @@ const Login = () => {
   const navigate = useNavigate();
 
   const handleChange = (e) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
+    setFormData({ ...formData, [e.target.name]: e.target.value.trim() });
   };
 
   const handleRememberMe = (e) => {
@@ -22,20 +22,23 @@ const Login = () => {
     setError("");
     setLoading(true);
 
-    // ✅ Basic validation before sending request
     if (!formData.email || !formData.password) {
       setError("❌ Email and password are required!");
       setLoading(false);
       return;
     }
-    if (formData.password.length < 8) {
-      setError("❌ Password must be at least 8 characters!");
+    if (formData.password.length < 6) {
+      setError("❌ Password must be at least 6 characters!");
       setLoading(false);
       return;
     }
 
     try {
-      const response = await axios.post("http://localhost:5000/api/signin", formData); // ✅ Corrected API route
+      const response = await axios.post(
+        "http://localhost:5000/auth/signin",
+        formData,
+        { headers: { "Content-Type": "application/json" } }
+      );
 
       if (response.data.token) {
         const storage = rememberMe ? localStorage : sessionStorage;

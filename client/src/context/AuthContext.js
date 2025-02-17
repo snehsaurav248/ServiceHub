@@ -9,9 +9,9 @@ const AuthProvider = ({ children }) => {
     return storedUser ? JSON.parse(storedUser) : null;
   });
 
-  useEffect(() => {
-    console.log("AuthContext User:", user); // Debugging user state
+  const [error, setError] = useState(null); // To handle error messages
 
+  useEffect(() => {
     if (user) {
       localStorage.setItem("user", JSON.stringify(user));
     } else {
@@ -26,15 +26,15 @@ const AuthProvider = ({ children }) => {
         password,
       });
 
-      console.log("Login Response:", response.data); // Debugging API response
-
       if (response.data && response.data.token) {
-        setUser(response.data.user); // Store user data separately
+        setUser(response.data.user); // Store user data
         localStorage.setItem("token", response.data.token); // Store JWT
+        setError(null); // Clear error if login is successful
       } else {
-        console.error("Invalid login response structure");
+        setError("Invalid login response structure");
       }
     } catch (error) {
+      setError(error.response?.data?.message || "Login failed. Please try again.");
       console.error("Login failed:", error.response?.data?.message || error.message);
     }
   };
@@ -46,7 +46,7 @@ const AuthProvider = ({ children }) => {
   };
 
   return (
-    <AuthContext.Provider value={{ user, login, logout }}>
+    <AuthContext.Provider value={{ user, setUser, login, logout, error }}>
       {children}
     </AuthContext.Provider>
   );
