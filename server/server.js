@@ -2,15 +2,25 @@ require("dotenv").config();
 const express = require("express");
 const mongoose = require("mongoose");
 const cors = require("cors");
+const jwt = require("jsonwebtoken");
 
-const authRoutes = require("./routes/auth");  // Correctly importing the auth routes
+const authRoutes = require("./routes/auth");  
+const serviceRoutes = require("./routes/ServiceRoutes");  
+const cartRoutes = require("./routes/cartRoutes");
+const orderRoutes = require("./routes/orderRoutes"); // ✅ Added Order Routes
 
 const app = express();
 
 // Middleware
-app.use(express.json()); // Ensure JSON body parsing
-app.use(express.urlencoded({ extended: true })); // Ensure form data parsing
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 app.use(cors({ origin: "http://localhost:3000", credentials: true }));
+
+// Use Routes
+app.use("/cart", cartRoutes);
+app.use("/auth", authRoutes);  
+app.use("/services", serviceRoutes);  
+app.use("/orders", orderRoutes); // ✅ Integrated Order Routes
 
 // Connect to MongoDB
 mongoose.connect(process.env.MONGO_URI)
@@ -19,9 +29,6 @@ mongoose.connect(process.env.MONGO_URI)
     console.error("❌ MongoDB Connection Error:", err);
     process.exit(1);
   });
-
-// Use auth routes
-app.use("/auth", authRoutes);  // Ensure the router is used with the "/auth" prefix
 
 // Middleware to Protect Routes
 const authenticate = (req, res, next) => {
@@ -42,6 +49,7 @@ const authenticate = (req, res, next) => {
 };
 
 // Fetch User Profile
+const User = require("./models/User");  
 app.get("/profile", authenticate, async (req, res) => {
   try {
     console.log("✅ Authenticated User ID:", req.user.id);

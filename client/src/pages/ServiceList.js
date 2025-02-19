@@ -1,47 +1,72 @@
-import React, { useState, useContext } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import { ArrowRightCircle, Search, XCircle, ShoppingCart } from "lucide-react";
 import { CartContext } from "../context/CartContext";
 
-const services = [
-  { name: "Plumbing", price: "₹500 - ₹1500" },
-  { name: "Electrician", price: "₹300 - ₹1200" },
-  { name: "Grocery Delivery", price: "₹50 - ₹150" },
-  { name: "Carpentry", price: "₹600 - ₹2000" },
-  { name: "House Cleaning", price: "₹800 - ₹2500" },
-  { name: "Pest Control", price: "₹1000 - ₹3000" },
-  { name: "Laundry", price: "₹150 - ₹500" },
-  { name: "Home Painting", price: "₹3000 - ₹10000" },
-  { name: "Appliance Repair", price: "₹500 - ₹2000" },
-  { name: "Fitness Trainer", price: "₹1000 - ₹5000" },
-];
-
 const ServiceList = () => {
   const { addToCart } = useContext(CartContext);
+  const [services, setServices] = useState([]);
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedService, setSelectedService] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+
+  // Fetch services from backend
+  useEffect(() => {
+    fetch("http://localhost:5000/api/services") // Update with your backend URL
+      .then((response) => response.json())
+      .then((data) => setServices(data))
+      .catch((error) => console.error("Error fetching services:", error));
+  }, []);
 
   // Filter services based on search input
   const filteredServices = services.filter((service) =>
     service.name.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
-  // Open the modal with selected service
+  // Open modal for booking
   const handleBookNow = (service) => {
     setSelectedService(service);
     setIsModalOpen(true);
   };
 
-  // Close the modal
+  // Close modal
   const closeModal = () => {
     setIsModalOpen(false);
     setSelectedService(null);
   };
 
+  // Handle booking submission
+  const handleBooking = (e) => {
+    e.preventDefault();
+    const formData = {
+      service: selectedService.name,
+      name: e.target.name.value,
+      phone: e.target.phone.value,
+      address: e.target.address.value,
+    };
+
+    fetch("http://localhost:5000/api/bookings", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(formData),
+    })
+      .then((response) => response.json())
+      .then(() => {
+        alert("Booking confirmed!");
+        closeModal();
+      })
+      .catch((error) => console.error("Error booking service:", error));
+  };
+
   // Add to cart functionality
   const handleAddToCart = (service) => {
-    addToCart(service);
-    alert(`${service.name} added to cart!`);
+    fetch("http://localhost:5000/api/cart", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(service),
+    })
+      .then((response) => response.json())
+      .then(() => alert(`${service.name} added to cart!`))
+      .catch((error) => console.error("Error adding to cart:", error));
   };
 
   return (
@@ -113,11 +138,12 @@ const ServiceList = () => {
             <p className="text-gray-700 mb-4">Charges: {selectedService.price}</p>
 
             {/* Booking Form */}
-            <form>
+            <form onSubmit={handleBooking}>
               <div className="mb-3">
                 <label className="block text-gray-700 font-medium">Your Name</label>
                 <input
                   type="text"
+                  name="name"
                   className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                   placeholder="Enter your name"
                   required
@@ -127,6 +153,7 @@ const ServiceList = () => {
                 <label className="block text-gray-700 font-medium">Contact Number</label>
                 <input
                   type="tel"
+                  name="phone"
                   className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                   placeholder="Enter your number"
                   required
@@ -135,6 +162,7 @@ const ServiceList = () => {
               <div className="mb-4">
                 <label className="block text-gray-700 font-medium">Address</label>
                 <textarea
+                  name="address"
                   className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                   placeholder="Enter your address"
                   rows="3"
